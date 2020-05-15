@@ -17,6 +17,8 @@ import { AccountSettingsComponent } from './account-settings/account-settings.co
 
 // TEMPORAL
 import { IncrementadorComponent } from '../components/incrementador/incrementador.component';
+import { PromesasComponent } from './promesas/promesas.component';
+import { RxjsComponent } from './rxjs/rxjs.component';
 
 
 
@@ -28,7 +30,9 @@ import { IncrementadorComponent } from '../components/incrementador/incrementado
         Graficas1Component,
         ProgressComponent,
         IncrementadorComponent,
-        AccountSettingsComponent
+        AccountSettingsComponent,
+        PromesasComponent,
+        RxjsComponent
     ],
 
     exports: [
