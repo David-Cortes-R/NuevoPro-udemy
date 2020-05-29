@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 // ROUTES
@@ -39,6 +39,7 @@ import { NopagefoundComponent } from './nopagefound/nopagefound.component';
     APP_ROUTES,
     PagesModule,
     FormsModule,
+    ReactiveFormsModule,
     ServiceModule
   ],
 
