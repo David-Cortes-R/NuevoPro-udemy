@@ -1,6 +1,12 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from '@angular/common';
 
+
+// Pipes
+import { PipesModule } from '../pipes/pipes.module';
+
+
+
 // RUTAS
 import { RouterModule } from '@angular/router';
 
@@ -27,7 +33,8 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 
     imports:[
         RouterModule,
-        CommonModule
+        CommonModule,
+        PipesModule
     ]
     
 })
