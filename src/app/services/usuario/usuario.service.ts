@@ -4,7 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { URL_SERVICIOS } from 'src/app/config/config';
 import { Router } from '@angular/router';
 
-import { map } from 'rxjs/operators';
+
+// import { map } from "rxjs/operators";
+import { map, filter, catchError, mergeMap } from 'rxjs/operators';
+import { throwError } from 'rxjs/internal/observable/throwError';
+
+
 
 
 //SweetAlert
@@ -21,6 +26,7 @@ export class UsuarioService {
 
   usuario: Usuario;
   token: string;
+  menu: any[] = [];
 
 
   constructor(
@@ -45,9 +51,11 @@ export class UsuarioService {
     if(localStorage.getItem('token')){
       this.token = localStorage.getItem('token');
       this.usuario = JSON.parse(localStorage.getItem('usuario'));
+      this.menu = JSON.parse(localStorage.getItem('menu'));
     }else{
       this.token = '';
       this.usuario = null;
+      this.menu = [];
     }
   }
 
@@ -55,14 +63,16 @@ export class UsuarioService {
 
 
 
-  guardarStorage(id: string, token: string, usuario: Usuario){
+  guardarStorage(id: string, token: string, usuario: Usuario, menu: any){
 
      localStorage.setItem('id', id);
      localStorage.setItem('token', token);
      localStorage.setItem('usuario', JSON.stringify(usuario));
+     localStorage.setItem('menu', JSON.stringify(menu));
 
      this.usuario = usuario;
      this.token = token;
+     this.menu = menu;
   }
 
 
@@ -70,9 +80,11 @@ export class UsuarioService {
 
     this.usuario = null;
     this.token = '';
+    this.menu = [];
 
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
+    localStorage.removeItem('menu');
 
     this._router.navigate(['/login']);
   }
@@ -86,11 +98,14 @@ export class UsuarioService {
 
     return this.http.post(url, { token: token })
               .pipe(map( (resp: any) => {
-                this.guardarStorage(resp.id, resp.token, resp.usuario);
+                this.guardarStorage(resp.id, resp.token, resp.usuario, resp.menu);
+
+                console.log(resp);
 
                 return true;
 
-              }));
+              }));       
+
   }
 
 
@@ -109,14 +124,31 @@ export class UsuarioService {
     return this.http.post(url, usuario)
             .pipe(map(( resp: any) => {
 
-              this.guardarStorage(resp.id, resp.token, resp.usuario);
+              this.guardarStorage(resp.id, resp.token, resp.usuario, resp.menu);
 
               return true;
+            }),
+            
+            catchError( err => {
 
-            }));
+              console.log(err.error.mensaje);
+
+              Swal.fire({
+                icon: 'error',
+                title: 'Error en el Login',
+                text: err.error.mensaje
+              });
+
+              return throwError(err);
+
+            })
+
+            );
+
+
   }
 
-
+            
 
 
   crearUsuario(usuario: Usuario){
@@ -131,10 +163,23 @@ export class UsuarioService {
                 title: "Usuario Creado Con Exito",
                 text: usuario.email
               });
-
+              
               return resp.usuario
 
-            }));
+            }),
+              catchError( err => {
+
+                  Swal.fire({
+                    icon: 'error',
+                    title: err.error.mensaje,
+                    // text: err.error.error.message
+                    text: "El Correo debe de ser Unico"
+                  });
+
+                  return throwError(err);
+
+              })
+            );
   }
 
 
@@ -150,7 +195,7 @@ export class UsuarioService {
                 if(usuario._id === this.usuario._id){
                   
                   let usuarioDB: Usuario = resp.usuario;
-                  this.guardarStorage(usuarioDB._id, this.token, usuarioDB);
+                  this.guardarStorage(usuarioDB._id, this.token, usuarioDB, this.menu);
 
                 }
 
@@ -162,7 +207,22 @@ export class UsuarioService {
 
                 return true;
 
-              }));
+              }),
+
+              catchError( err => {
+
+                Swal.fire({
+                  icon: 'error',
+                  title: err.error.mensaje,
+                  text: err.error.error.message
+                  // text: "El Correo debe de ser Unico"
+                });
+
+                return throwError(err);
+
+            })
+
+              );
 
   }
 
@@ -180,7 +240,7 @@ export class UsuarioService {
                       text: this.usuario.nombre
                     });
 
-                    this.guardarStorage(id, this.token, this.usuario);
+                    this.guardarStorage(id, this.token, this.usuario, this.menu);
 
                   })
                   .catch( resp => {
